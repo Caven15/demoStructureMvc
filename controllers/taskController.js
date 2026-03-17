@@ -1,3 +1,4 @@
+const { json } = require("stream/consumers");
 const taskModel = require("../models/taskModels");
 
 function handleGetAll(req, res) {
@@ -61,8 +62,71 @@ function handleCreate(req, res) {
     });
 }
 
+function handleUpdate(req, res, id) {
+    const taskId = parseInt(id);
+
+    let body = "";
+
+    req.on("data", (data) => {
+        body += data.toString();
+    });
+
+    req.on("end", () => {
+        try {
+            if (!body.trim()) {
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(
+                    JSON.stringify({ message: "Request body is required" }),
+                );
+                return;
+            }
+
+            const updates = JSON.parse(body);
+
+            const updatedTask = taskModel.update(taskId, updates);
+
+            if (!updatedTask) {
+                res.writeHead(404, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Task not found" }));
+            }
+
+            // ok je renvoie 200...
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(updatedTask));
+        } catch (err) {
+            console.error("Update error :", err.message);
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end({ message: "Invalid JSON format" });
+        }
+    });
+
+    req.on("error", (err) => {
+        res.writeHead(500);
+        res.end({ message: "Server error" });
+    });
+}
+
+function handleDelete(req, res, id) {
+    const taskId = parseInt(id);
+
+    const deleted = taskModel.deleteTask(taskId);
+
+    if (!deleted) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Task not found" }));
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ 
+        message: "Task deleted succefully",
+        deletedTask : deleted
+    }));
+}
+
 module.exports = {
     handleGetAll,
     handleGetById,
     handleCreate,
+    handleUpdate,
+    handleDelete,
 };

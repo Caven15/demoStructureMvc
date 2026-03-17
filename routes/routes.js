@@ -15,6 +15,10 @@ function Routes(req, res) {
         }
     } else if (pathname === "/tasks" && req.method === "POST") {
         taskController.handleCreate(req, res);
+    } else if (pathname === "/tasks" && req.method === "PUT"){
+        taskController.handleUpdate(req, res, id);
+    } else if (pathname === "/tasks" && req.method === "DELETE"){
+        taskController.handleDelete(req, res, id);
     } else {
         res.writeHead(404, { "Content-Type": "text/plain" });
         res.end("404 - Not Found");
