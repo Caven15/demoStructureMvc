@@ -19,6 +19,8 @@ function Routes(req, res) {
         taskController.handleUpdate(req, res, id);
     } else if (pathname === "/tasks" && req.method === "DELETE"){
         taskController.handleDelete(req, res, id);
+    } else if (pathname === "/tasks" && req.method === "PATCH") {
+        taskController.handleStatus(req, res, id);
     } else {
         res.writeHead(404, { "Content-Type": "text/plain" });
         res.end("404 - Not Found");

@@ -65,10 +65,22 @@ function deleteTask(id){
     return deleteTask;
 }
 
+function updateCompleted(id, completed) {
+    const task = getById(id);
+
+    if (!task) {
+        return null;
+    }
+
+    task.completed = !!completed;
+    return task;
+}
+
 module.exports = {
     getAll,
     getById,
     create,
     update,
-    deleteTask
+    deleteTask,
+    updateCompleted
 };

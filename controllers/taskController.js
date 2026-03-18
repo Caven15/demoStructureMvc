@@ -123,10 +123,53 @@ function handleDelete(req, res, id) {
     }));
 }
 
+function handleStatus(req, res, id){
+    const taskId = parseInt(id);
+
+    if (Number.isNaN(taskId)) {
+        res.writeHead(400,  { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Invalid Id !!!" }));
+    }
+
+    let body = "";
+    req.on("data", (data) => body += data.toString());
+
+    req.on("end", () => {
+        try {
+            const data = JSON.parse(body);
+
+            if (data.completed === undefined) {
+                res.writeHead(400,  { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Field completed is required in PATCH" }));
+                return;
+            }
+
+            const updatedTask = taskModel.updateCompleted(taskId, data.completed);
+
+            if (!updatedTask) {
+                res.writeHead(404,  { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Task not found" }));
+                return;
+            }
+
+            res.writeHead(200,  { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ 
+                message: "Task updated succefully (PATCH)",
+                task : updatedTask
+            }));
+
+        } catch (err) {
+            res.writeHead(400,  { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Invalid JSON format" }));
+        }
+    })
+}
+
 module.exports = {
     handleGetAll,
     handleGetById,
     handleCreate,
     handleUpdate,
     handleDelete,
+    handleStatus
 };
